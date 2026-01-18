@@ -1,13 +1,34 @@
 import { ZoomIn, ZoomOut, Locate, Layers } from "lucide-react";
 
-interface MapContainerProps {
-  layers: {
-    migration: boolean;
-    periUrban: boolean;
-    digitalExclusion: boolean;
-  };
+// ============================================================
+// TYPE DEFINITIONS
+// ============================================================
+
+export interface MapLayers {
+  migration: boolean;
+  periUrban: boolean;
+  digitalExclusion: boolean;
 }
 
+export interface MapContainerProps {
+  layers: MapLayers;
+  // TODO: Add these props when backend integration is ready
+  // geoJsonData?: unknown;
+  // selectedRegion?: string;
+  // onRegionSelect?: (regionId: string) => void;
+  // tooltipData?: unknown;
+}
+
+// ============================================================
+// MAIN COMPONENT
+// ============================================================
+
+/**
+ * Map Container - Visual placeholder for map visualization
+ * 
+ * NOTE: This is a UI placeholder only. No map library or GIS logic is implemented.
+ * TODO: Replace with actual map implementation when backend provides GeoJSON data
+ */
 export function MapContainer({ layers }: MapContainerProps) {
   // Count active layers for display
   const activeLayerCount = Object.values(layers).filter(Boolean).length;
@@ -32,7 +53,8 @@ export function MapContainer({ layers }: MapContainerProps) {
         </div>
       </div>
 
-      {/* Zoom Controls */}
+      {/* Zoom Controls - UI only, no functionality */}
+      {/* TODO: Connect zoom controls when map library is integrated */}
       <div className="absolute right-4 top-4 flex flex-col gap-1">
         <button className="map-control-btn" title="Zoom In">
           <ZoomIn className="w-4 h-4 text-foreground" />
@@ -46,6 +68,7 @@ export function MapContainer({ layers }: MapContainerProps) {
       </div>
 
       {/* Tooltip Overlay Placeholder */}
+      {/* TODO: Replace with dynamic tooltip from backend data */}
       <div className="absolute left-4 bottom-4 bg-card border border-border rounded-md p-3 shadow-sm max-w-xs transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
         <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Hover Tooltip</p>
         <p className="text-sm text-foreground">Location details will appear here on interaction</p>

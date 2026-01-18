@@ -1,6 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { districtOptions, timeRangeOptions, DistrictOption, TimeRangeOption } from "@/mock/dashboardData";
 
 interface FiltersPanelProps {
   selectedDistrict: string;
@@ -13,24 +14,14 @@ interface FiltersPanelProps {
     digitalExclusion: boolean;
   };
   onLayerToggle: (layer: keyof FiltersPanelProps["layers"]) => void;
+  /** Optional: Override district options from backend */
+  districts?: DistrictOption[];
+  /** Optional: Override time range options from backend */
+  timeRanges?: TimeRangeOption[];
 }
 
-// Mock district data
-const districts = [
-  { value: "all", label: "All Districts" },
-  { value: "patna", label: "Patna" },
-  { value: "gaya", label: "Gaya" },
-  { value: "muzaffarpur", label: "Muzaffarpur" },
-  { value: "bhagalpur", label: "Bhagalpur" },
-  { value: "darbhanga", label: "Darbhanga" },
-];
-
-const timeRanges = [
-  { value: "7d", label: "Last 7 Days" },
-  { value: "30d", label: "Last 30 Days" },
-  { value: "90d", label: "Last 90 Days" },
-  { value: "1y", label: "Last Year" },
-];
+// TODO: Replace with backend API response for dynamic district list
+// TODO: Replace with backend API response for dynamic time range options
 
 export function FiltersPanel({
   selectedDistrict,
@@ -39,6 +30,8 @@ export function FiltersPanel({
   onTimeRangeChange,
   layers,
   onLayerToggle,
+  districts = districtOptions,
+  timeRanges = timeRangeOptions,
 }: FiltersPanelProps) {
   return (
     <aside className="filter-panel w-full h-full p-4 flex flex-col gap-6 animate-slide-in-left">

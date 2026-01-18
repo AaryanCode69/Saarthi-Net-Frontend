@@ -1,34 +1,27 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { districtOptions, timeRangeOptions, DistrictOption, TimeRangeOption } from "@/mock/dashboardData";
 
 interface DashboardHeaderProps {
   selectedDistrict: string;
   onDistrictChange: (value: string) => void;
   selectedTimeRange: string;
   onTimeRangeChange: (value: string) => void;
+  /** Optional: Override district options from backend */
+  districts?: DistrictOption[];
+  /** Optional: Override time range options from backend */
+  timeRanges?: TimeRangeOption[];
 }
 
-// Mock district data
-const districts = [
-  { value: "all", label: "All Districts" },
-  { value: "patna", label: "Patna" },
-  { value: "gaya", label: "Gaya" },
-  { value: "muzaffarpur", label: "Muzaffarpur" },
-  { value: "bhagalpur", label: "Bhagalpur" },
-  { value: "darbhanga", label: "Darbhanga" },
-];
-
-const timeRanges = [
-  { value: "7d", label: "Last 7 Days" },
-  { value: "30d", label: "Last 30 Days" },
-  { value: "90d", label: "Last 90 Days" },
-  { value: "1y", label: "Last Year" },
-];
+// TODO: Replace with backend API response for dynamic district list
+// TODO: Replace with backend API response for dynamic time range options
 
 export function DashboardHeader({
   selectedDistrict,
   onDistrictChange,
   selectedTimeRange,
   onTimeRangeChange,
+  districts = districtOptions,
+  timeRanges = timeRangeOptions,
 }: DashboardHeaderProps) {
   return (
     <header className="dashboard-header sticky top-0 z-50 h-14 px-6 flex items-center justify-between shadow-sm">

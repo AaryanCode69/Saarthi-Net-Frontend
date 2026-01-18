@@ -4,12 +4,17 @@ import { FiltersPanel } from "@/components/dashboard/FiltersPanel";
 import { MapContainer } from "@/components/dashboard/MapContainer";
 import { InsightsPanel } from "@/components/dashboard/InsightsPanel";
 import { LegendStrip } from "@/components/dashboard/LegendStrip";
+import {
+  mockMigrationData,
+  mockPeriUrbanData,
+  mockDigitalExclusionData,
+} from "@/mock/dashboardData";
 
 const Index = () => {
   // State for filters
   const [selectedDistrict, setSelectedDistrict] = useState("all");
   const [selectedTimeRange, setSelectedTimeRange] = useState("30d");
-  
+
   // State for layer toggles
   const [layers, setLayers] = useState({
     migration: true,
@@ -23,6 +28,12 @@ const Index = () => {
       [layer]: !prev[layer],
     }));
   };
+
+  // TODO: Replace mock data with backend API response via React Query
+  // Example:
+  // const { data: migrationData } = useQuery(['migration', selectedDistrict, selectedTimeRange], fetchMigrationData);
+  // const { data: periUrbanData } = useQuery(['periUrban', selectedDistrict, selectedTimeRange], fetchPeriUrbanData);
+  // const { data: digitalExclusionData } = useQuery(['digitalExclusion', selectedDistrict, selectedTimeRange], fetchDigitalExclusionData);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -55,7 +66,12 @@ const Index = () => {
 
         {/* Right Sidebar - Insights Panel (~20-25%) */}
         <div className="w-[25%] min-w-[280px] max-w-[360px] border-l border-border overflow-y-auto">
-          <InsightsPanel />
+          {/* TODO: Replace mock data props with backend API response */}
+          <InsightsPanel
+            migrationData={mockMigrationData}
+            periUrbanData={mockPeriUrbanData}
+            digitalExclusionData={mockDigitalExclusionData}
+          />
         </div>
       </div>
 
