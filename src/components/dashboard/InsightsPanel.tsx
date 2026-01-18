@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, AlertTriangle, Shield, Users } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, Shield, Users, Loader2 } from "lucide-react";
 import {
   MigrationData,
   PeriUrbanData,
@@ -15,20 +15,67 @@ import {
 
 interface MigrationCardProps {
   data: MigrationData;
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
 interface PeriUrbanCardProps {
   data: PeriUrbanData;
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
 interface DigitalExclusionCardProps {
   data: DigitalExclusionData;
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
 export interface InsightsPanelProps {
   migrationData: MigrationData;
   periUrbanData: PeriUrbanData;
   digitalExclusionData: DigitalExclusionData;
+  isLoading?: boolean;
+  migrationLoading?: boolean;
+  periUrbanLoading?: boolean;
+  digitalRiskLoading?: boolean;
+  migrationError?: boolean;
+  periUrbanError?: boolean;
+  digitalRiskError?: boolean;
+}
+
+// ============================================================
+// LOADING & ERROR COMPONENTS
+// ============================================================
+
+function CardSkeleton({ title, icon: Icon }: { title: string; icon: typeof Users }) {
+  return (
+    <div className="insight-card animate-pulse">
+      <div className="insight-card-header flex items-center gap-2">
+        <Icon className="w-4 h-4 text-muted-foreground" />
+        <span>{title}</span>
+      </div>
+      <div className="space-y-3 pt-2">
+        <div className="h-4 bg-muted rounded w-3/4" />
+        <div className="h-4 bg-muted rounded w-1/2" />
+        <div className="h-4 bg-muted rounded w-2/3" />
+      </div>
+    </div>
+  );
+}
+
+function CardError({ title, icon: Icon }: { title: string; icon: typeof Users }) {
+  return (
+    <div className="insight-card">
+      <div className="insight-card-header flex items-center gap-2">
+        <Icon className="w-4 h-4 text-muted-foreground" />
+        <span>{title}</span>
+      </div>
+      <div className="py-4 text-center">
+        <p className="text-sm text-muted-foreground">Data temporarily unavailable</p>
+      </div>
+    </div>
+  );
 }
 
 // ============================================================
@@ -37,9 +84,16 @@ export interface InsightsPanelProps {
 
 /**
  * Migration Overview Card
- * TODO: Replace with backend API response
  */
-function MigrationCard({ data }: MigrationCardProps) {
+function MigrationCard({ data, isLoading, isError }: MigrationCardProps) {
+  if (isLoading) {
+    return <CardSkeleton title="Migration Overview" icon={Users} />;
+  }
+
+  if (isError) {
+    return <CardError title="Migration Overview" icon={Users} />;
+  }
+
   const hasTrend = data.trend !== null;
   const hasNetMigration = data.netMigrationPercent !== null;
 
@@ -90,9 +144,16 @@ function MigrationCard({ data }: MigrationCardProps) {
 
 /**
  * Peri-Urban Growth Alert Card
- * TODO: Replace with backend API response
  */
-function PeriUrbanCard({ data }: PeriUrbanCardProps) {
+function PeriUrbanCard({ data, isLoading, isError }: PeriUrbanCardProps) {
+  if (isLoading) {
+    return <CardSkeleton title="Peri-Urban Growth Alert" icon={AlertTriangle} />;
+  }
+
+  if (isError) {
+    return <CardError title="Peri-Urban Growth Alert" icon={AlertTriangle} />;
+  }
+
   const hasAlert = data.alertStatus !== null;
   const hasExplanation = data.explanation !== null;
 
@@ -139,12 +200,18 @@ function PeriUrbanCard({ data }: PeriUrbanCardProps) {
 
 /**
  * Digital Exclusion Risk Card
- * TODO: Replace with backend API response
  */
-function DigitalExclusionCard({ data }: DigitalExclusionCardProps) {
+function DigitalExclusionCard({ data, isLoading, isError }: DigitalExclusionCardProps) {
+  if (isLoading) {
+    return <CardSkeleton title="Digital Exclusion Risk" icon={Shield} />;
+  }
+
+  if (isError) {
+    return <CardError title="Digital Exclusion Risk" icon={Shield} />;
+  }
+
   const hasAadhaar = data.aadhaarCoverage !== null;
   const hasUsability = data.digitalUsability !== null;
-  const hasRiskLevel = data.riskLevel !== null;
 
   const getRiskStyles = (level: string | null) => {
     if (level === "Low") return "bg-status-low/10 status-low";
@@ -213,13 +280,18 @@ export function InsightsPanel({
   migrationData,
   periUrbanData,
   digitalExclusionData,
+  migrationLoading = false,
+  periUrbanLoading = false,
+  digitalRiskLoading = false,
+  migrationError = false,
+  periUrbanError = false,
+  digitalRiskError = false,
 }: InsightsPanelProps) {
   return (
     <aside className="w-full h-full p-4 flex flex-col gap-4 overflow-y-auto bg-background">
-      {/* TODO: Replace with backend API response */}
-      <MigrationCard data={migrationData} />
-      <PeriUrbanCard data={periUrbanData} />
-      <DigitalExclusionCard data={digitalExclusionData} />
+      <MigrationCard data={migrationData} isLoading={migrationLoading} isError={migrationError} />
+      <PeriUrbanCard data={periUrbanData} isLoading={periUrbanLoading} isError={periUrbanError} />
+      <DigitalExclusionCard data={digitalExclusionData} isLoading={digitalRiskLoading} isError={digitalRiskError} />
     </aside>
   );
 }

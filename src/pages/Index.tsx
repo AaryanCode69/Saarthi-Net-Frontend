@@ -4,11 +4,36 @@ import { FiltersPanel } from "@/components/dashboard/FiltersPanel";
 import { MapContainer } from "@/components/dashboard/MapContainer";
 import { InsightsPanel } from "@/components/dashboard/InsightsPanel";
 import { LegendStrip } from "@/components/dashboard/LegendStrip";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import {
-  mockMigrationData,
-  mockPeriUrbanData,
-  mockDigitalExclusionData,
+  MigrationData,
+  PeriUrbanData,
+  DigitalExclusionData,
 } from "@/mock/dashboardData";
+
+// Default empty data for when API hasn't returned yet
+const emptyMigrationData: MigrationData = {
+  netMigrationPercent: null,
+  trend: null,
+  topSourceDistrict: null,
+  totalMovement: null,
+  inflow: null,
+  outflow: null,
+};
+
+const emptyPeriUrbanData: PeriUrbanData = {
+  alertStatus: null,
+  growthIndex: null,
+  affectedZones: null,
+  explanation: null,
+};
+
+const emptyDigitalExclusionData: DigitalExclusionData = {
+  aadhaarCoverage: null,
+  digitalUsability: null,
+  riskLevel: null,
+  atRiskPopulation: null,
+};
 
 const Index = () => {
   // State for filters
@@ -29,11 +54,11 @@ const Index = () => {
     }));
   };
 
-  // TODO: Replace mock data with backend API response via React Query
-  // Example:
-  // const { data: migrationData } = useQuery(['migration', selectedDistrict, selectedTimeRange], fetchMigrationData);
-  // const { data: periUrbanData } = useQuery(['periUrban', selectedDistrict, selectedTimeRange], fetchPeriUrbanData);
-  // const { data: digitalExclusionData } = useQuery(['digitalExclusion', selectedDistrict, selectedTimeRange], fetchDigitalExclusionData);
+  // Fetch dashboard data from backend APIs
+  const { migration, periUrban, digitalRisk } = useDashboardData({
+    district: selectedDistrict,
+    period: selectedTimeRange,
+  });
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -66,11 +91,16 @@ const Index = () => {
 
         {/* Right Sidebar - Insights Panel (~20-25%) */}
         <div className="w-[25%] min-w-[280px] max-w-[360px] border-l border-border overflow-y-auto">
-          {/* TODO: Replace mock data props with backend API response */}
           <InsightsPanel
-            migrationData={mockMigrationData}
-            periUrbanData={mockPeriUrbanData}
-            digitalExclusionData={mockDigitalExclusionData}
+            migrationData={migration.data ?? emptyMigrationData}
+            periUrbanData={periUrban.data ?? emptyPeriUrbanData}
+            digitalExclusionData={digitalRisk.data ?? emptyDigitalExclusionData}
+            migrationLoading={migration.isLoading}
+            periUrbanLoading={periUrban.isLoading}
+            digitalRiskLoading={digitalRisk.isLoading}
+            migrationError={migration.isError}
+            periUrbanError={periUrban.isError}
+            digitalRiskError={digitalRisk.isError}
           />
         </div>
       </div>
