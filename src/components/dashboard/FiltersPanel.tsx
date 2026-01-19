@@ -2,7 +2,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { districtOptions, timeRangeOptions, DistrictOption, TimeRangeOption } from "@/mock/dashboardData";
-import { useFilters } from "@/store/filters";
+import { useFilters, LayerState } from "@/store/filters";
+import { MIN_VISIBLE_LAYERS } from "@/config/demoDefaults";
 
 interface FiltersPanelProps {
   /** Optional: Override district options from backend */
@@ -11,12 +12,25 @@ interface FiltersPanelProps {
   timeRanges?: TimeRangeOption[];
 }
 
+/**
+ * Check if a layer is the only active layer (can't be disabled)
+ */
+function isOnlyActiveLayer(layers: LayerState, layerKey: keyof LayerState): boolean {
+  const activeCount = Object.values(layers).filter(Boolean).length;
+  return layers[layerKey] && activeCount <= MIN_VISIBLE_LAYERS;
+}
+
 export function FiltersPanel({
   districts = districtOptions,
   timeRanges = timeRangeOptions,
 }: FiltersPanelProps) {
   // Use global filter state
   const { state, setDistrict, setPeriod, toggleLayer } = useFilters();
+
+  // Check if each layer is the only one active (guards against all-off state)
+  const isMigrationOnlyActive = isOnlyActiveLayer(state.layers, "migration");
+  const isPeriUrbanOnlyActive = isOnlyActiveLayer(state.layers, "periUrban");
+  const isDigitalRiskOnlyActive = isOnlyActiveLayer(state.layers, "digitalRisk");
 
   return (
     <aside className="filter-panel w-full h-full p-4 flex flex-col gap-6 animate-slide-in-left">
@@ -74,7 +88,8 @@ export function FiltersPanel({
           <Switch
             checked={state.layers.migration}
             onCheckedChange={() => toggleLayer("migration")}
-            className="transition-all duration-200"
+            disabled={isMigrationOnlyActive}
+            className={`transition-all duration-200 ${isMigrationOnlyActive ? 'opacity-50 cursor-not-allowed' : ''}`}
           />
         </div>
 
@@ -89,7 +104,8 @@ export function FiltersPanel({
           <Switch
             checked={state.layers.periUrban}
             onCheckedChange={() => toggleLayer("periUrban")}
-            className="transition-all duration-200"
+            disabled={isPeriUrbanOnlyActive}
+            className={`transition-all duration-200 ${isPeriUrbanOnlyActive ? 'opacity-50 cursor-not-allowed' : ''}`}
           />
         </div>
 
@@ -104,7 +120,8 @@ export function FiltersPanel({
           <Switch
             checked={state.layers.digitalRisk}
             onCheckedChange={() => toggleLayer("digitalRisk")}
-            className="transition-all duration-200"
+            disabled={isDigitalRiskOnlyActive}
+            className={`transition-all duration-200 ${isDigitalRiskOnlyActive ? 'opacity-50 cursor-not-allowed' : ''}`}
           />
         </div>
       </div>

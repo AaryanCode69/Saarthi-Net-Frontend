@@ -8,9 +8,22 @@
  * - Map layer visibility toggles
  * 
  * Uses React Context + useReducer pattern for predictable state updates.
+ * 
+ * PHASE 5: Demo Hardening
+ * - Uses demo defaults from config
+ * - Guards against invalid states
+ * - Ensures at least one layer is always visible
  */
 
 import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import {
+  DEFAULT_DISTRICT,
+  DEFAULT_PERIOD,
+  DEFAULT_LAYERS,
+  MIN_VISIBLE_LAYERS,
+  FALLBACK_LAYER,
+  ensureValidPeriod,
+} from "@/config/demoDefaults";
 
 // ============================================================
 // STATE INTERFACE
@@ -34,16 +47,46 @@ export interface FilterState {
 // DEFAULT STATE
 // ============================================================
 
+/**
+ * Default filter state using demo defaults from config.
+ * Ensures dashboard loads immediately with meaningful data.
+ */
 const DEFAULT_FILTER_STATE: FilterState = {
-  district: "all",
-  period: "30d",
+  district: DEFAULT_DISTRICT,
+  period: DEFAULT_PERIOD,
   layers: {
-    migration: true,
-    periUrban: true,
-    digitalRisk: false,
+    migration: DEFAULT_LAYERS.migration,
+    periUrban: DEFAULT_LAYERS.periUrban,
+    digitalRisk: DEFAULT_LAYERS.digitalRisk,
   },
   focusedDistrict: null,
 };
+
+// ============================================================
+// GUARD FUNCTIONS
+// ============================================================
+
+/**
+ * Count the number of visible layers
+ */
+function countVisibleLayers(layers: LayerState): number {
+  return Object.values(layers).filter(Boolean).length;
+}
+
+/**
+ * Ensure at least one layer is visible.
+ * If the new state would have no visible layers, force enable the fallback layer.
+ */
+function ensureMinimumLayers(layers: LayerState): LayerState {
+  if (countVisibleLayers(layers) >= MIN_VISIBLE_LAYERS) {
+    return layers;
+  }
+  // Force enable fallback layer
+  return {
+    ...layers,
+    [FALLBACK_LAYER]: true,
+  };
+}
 
 // ============================================================
 // ACTION TYPES
@@ -67,25 +110,34 @@ function filterReducer(state: FilterState, action: FilterAction): FilterState {
       return { ...state, district: action.payload };
 
     case "SET_PERIOD":
-      return { ...state, period: action.payload };
+      // Guard: ensure period is valid
+      return { ...state, period: ensureValidPeriod(action.payload) };
 
-    case "TOGGLE_LAYER":
+    case "TOGGLE_LAYER": {
+      // Create new layers state with toggled value
+      const newLayers = {
+        ...state.layers,
+        [action.payload]: !state.layers[action.payload],
+      };
+      // Guard: ensure at least one layer remains visible
       return {
         ...state,
-        layers: {
-          ...state.layers,
-          [action.payload]: !state.layers[action.payload],
-        },
+        layers: ensureMinimumLayers(newLayers),
       };
+    }
 
-    case "SET_LAYER":
+    case "SET_LAYER": {
+      // Create new layers state with set value
+      const newLayers = {
+        ...state.layers,
+        [action.payload.layer]: action.payload.value,
+      };
+      // Guard: ensure at least one layer remains visible
       return {
         ...state,
-        layers: {
-          ...state.layers,
-          [action.payload.layer]: action.payload.value,
-        },
+        layers: ensureMinimumLayers(newLayers),
       };
+    }
 
     case "SET_FOCUSED_DISTRICT":
       return { ...state, focusedDistrict: action.payload };

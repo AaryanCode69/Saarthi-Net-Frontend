@@ -9,6 +9,7 @@ import {
   formatIndexWithLoading,
 } from "@/mock/dashboardData";
 import { useFilters } from "@/store/filters";
+import { LOADING_MESSAGES } from "@/config/demoDefaults";
 
 // ============================================================
 // TYPE DEFINITIONS
@@ -57,15 +58,15 @@ export interface InsightsPanelProps {
 
 function CardSkeleton({ title, icon: Icon }: { title: string; icon: typeof Users }) {
   return (
-    <div className="insight-card animate-pulse">
+    <div className="insight-card">
       <div className="insight-card-header flex items-center gap-2">
         <Icon className="w-4 h-4 text-muted-foreground" />
         <span>{title}</span>
       </div>
       <div className="space-y-3 pt-2">
+        <p className="text-sm text-muted-foreground">{LOADING_MESSAGES.initial}</p>
         <div className="h-4 bg-muted rounded w-3/4" />
         <div className="h-4 bg-muted rounded w-1/2" />
-        <div className="h-4 bg-muted rounded w-2/3" />
       </div>
     </div>
   );
@@ -79,7 +80,7 @@ function CardError({ title, icon: Icon }: { title: string; icon: typeof Users })
         <span>{title}</span>
       </div>
       <div className="py-4 text-center">
-        <p className="text-sm text-muted-foreground">Data temporarily unavailable</p>
+        <p className="text-sm text-muted-foreground">{LOADING_MESSAGES.error}</p>
       </div>
     </div>
   );
