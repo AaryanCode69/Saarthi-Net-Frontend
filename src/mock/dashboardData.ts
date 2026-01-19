@@ -126,12 +126,36 @@ export function formatValue(value: string | number | null | undefined): string {
 }
 
 /**
+ * Formats a value with loading state awareness
+ */
+export function formatValueWithLoading(
+  value: string | number | null | undefined,
+  isLoading?: boolean
+): string {
+  if (isLoading) return "Loading…";
+  if (value === null || value === undefined) return "Not available";
+  return String(value);
+}
+
+/**
  * Safely formats a percentage value for display
  */
 export function formatPercent(value: number | null | undefined): string {
   if (value === null || value === undefined) {
     return "--";
   }
+  return `${value}%`;
+}
+
+/**
+ * Formats a percentage with loading state awareness
+ */
+export function formatPercentWithLoading(
+  value: number | null | undefined,
+  isLoading?: boolean
+): string {
+  if (isLoading) return "Loading…";
+  if (value === null || value === undefined) return "Not available";
   return `${value}%`;
 }
 
@@ -147,11 +171,36 @@ export function formatSignedPercent(value: number | null | undefined): string {
 }
 
 /**
+ * Formats a signed percentage with loading state awareness
+ */
+export function formatSignedPercentWithLoading(
+  value: number | null | undefined,
+  isLoading?: boolean
+): string {
+  if (isLoading) return "Loading…";
+  if (value === null || value === undefined) return "Not available";
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${value}%`;
+}
+
+/**
  * Safely formats an index value (e.g., 0.73)
  */
 export function formatIndex(value: number | null | undefined): string {
   if (value === null || value === undefined) {
     return "--";
   }
+  return value.toFixed(2);
+}
+
+/**
+ * Formats an index with loading state awareness
+ */
+export function formatIndexWithLoading(
+  value: number | null | undefined,
+  isLoading?: boolean
+): string {
+  if (isLoading) return "Loading…";
+  if (value === null || value === undefined) return "Not available";
   return value.toFixed(2);
 }

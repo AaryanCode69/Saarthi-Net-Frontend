@@ -1,13 +1,14 @@
-import { TrendingUp, TrendingDown, AlertTriangle, Shield, Users, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, Shield, Users } from "lucide-react";
 import {
   MigrationData,
   PeriUrbanData,
   DigitalExclusionData,
-  formatValue,
-  formatPercent,
-  formatSignedPercent,
-  formatIndex,
+  formatValueWithLoading,
+  formatPercentWithLoading,
+  formatSignedPercentWithLoading,
+  formatIndexWithLoading,
 } from "@/mock/dashboardData";
+import { useFilters } from "@/store/filters";
 
 // ============================================================
 // TYPE DEFINITIONS
@@ -17,18 +18,24 @@ interface MigrationCardProps {
   data: MigrationData;
   isLoading?: boolean;
   isError?: boolean;
+  isEmphasized?: boolean;
+  isFocused?: boolean;
 }
 
 interface PeriUrbanCardProps {
   data: PeriUrbanData;
   isLoading?: boolean;
   isError?: boolean;
+  isEmphasized?: boolean;
+  isFocused?: boolean;
 }
 
 interface DigitalExclusionCardProps {
   data: DigitalExclusionData;
   isLoading?: boolean;
   isError?: boolean;
+  isEmphasized?: boolean;
+  isFocused?: boolean;
 }
 
 export interface InsightsPanelProps {
@@ -83,9 +90,20 @@ function CardError({ title, icon: Icon }: { title: string; icon: typeof Users })
 // ============================================================
 
 /**
+ * Get card emphasis class based on layer state
+ */
+function getCardEmphasisClass(isEmphasized?: boolean, isFocused?: boolean): string {
+  const base = "insight-card animate-fade-in-up transition-all duration-150";
+  if (isFocused) return `${base} ring-2 ring-primary/50 shadow-md`;
+  if (isEmphasized === false) return `${base} opacity-50`;
+  if (isEmphasized === true) return `${base} ring-1 ring-primary/30`;
+  return base;
+}
+
+/**
  * Migration Overview Card
  */
-function MigrationCard({ data, isLoading, isError }: MigrationCardProps) {
+function MigrationCard({ data, isLoading, isError, isEmphasized, isFocused }: MigrationCardProps) {
   if (isLoading) {
     return <CardSkeleton title="Migration Overview" icon={Users} />;
   }
@@ -98,7 +116,7 @@ function MigrationCard({ data, isLoading, isError }: MigrationCardProps) {
   const hasNetMigration = data.netMigrationPercent !== null;
 
   return (
-    <div className="insight-card animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+    <div className={getCardEmphasisClass(isEmphasized, isFocused)} style={{ animationDelay: "0.1s" }}>
       <div className="insight-card-header flex items-center gap-2">
         <Users className="w-4 h-4 text-migration transition-transform duration-200 group-hover:scale-110" />
         <span>Migration Overview</span>
@@ -109,8 +127,8 @@ function MigrationCard({ data, isLoading, isError }: MigrationCardProps) {
         <div className="flex items-center justify-between group">
           <span className="data-label group-hover:text-foreground">Net Migration</span>
           <div className="flex items-center gap-1">
-            <span className="data-value group-hover:text-migration">
-              {formatSignedPercent(data.netMigrationPercent)}
+            <span className={`data-value group-hover:text-migration ${isFocused ? "font-bold" : ""}`}>
+              {formatSignedPercentWithLoading(data.netMigrationPercent, isLoading)}
             </span>
             {hasTrend && hasNetMigration && (
               data.trend === "up" ? (
@@ -125,16 +143,16 @@ function MigrationCard({ data, isLoading, isError }: MigrationCardProps) {
         {/* Top Source District */}
         <div className="flex items-center justify-between group">
           <span className="data-label group-hover:text-foreground">Top Source District</span>
-          <span className="text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration">
-            {formatValue(data.topSourceDistrict)}
+          <span className={`text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration ${isFocused ? "font-bold" : ""}`}>
+            {formatValueWithLoading(data.topSourceDistrict, isLoading)}
           </span>
         </div>
 
         {/* Total Movement */}
         <div className="flex items-center justify-between group">
           <span className="data-label group-hover:text-foreground">Total Movement</span>
-          <span className="text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration">
-            {formatValue(data.totalMovement)}
+          <span className={`text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration ${isFocused ? "font-bold" : ""}`}>
+            {formatValueWithLoading(data.totalMovement, isLoading)}
           </span>
         </div>
       </div>
@@ -145,7 +163,7 @@ function MigrationCard({ data, isLoading, isError }: MigrationCardProps) {
 /**
  * Peri-Urban Growth Alert Card
  */
-function PeriUrbanCard({ data, isLoading, isError }: PeriUrbanCardProps) {
+function PeriUrbanCard({ data, isLoading, isError, isEmphasized, isFocused }: PeriUrbanCardProps) {
   if (isLoading) {
     return <CardSkeleton title="Peri-Urban Growth Alert" icon={AlertTriangle} />;
   }
@@ -158,7 +176,7 @@ function PeriUrbanCard({ data, isLoading, isError }: PeriUrbanCardProps) {
   const hasExplanation = data.explanation !== null;
 
   return (
-    <div className="insight-card animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+    <div className={getCardEmphasisClass(isEmphasized, isFocused)} style={{ animationDelay: "0.2s" }}>
       <div className="insight-card-header flex items-center gap-2">
         <AlertTriangle className="w-4 h-4 text-periurban" />
         <span>Peri-Urban Growth Alert</span>
@@ -172,16 +190,16 @@ function PeriUrbanCard({ data, isLoading, isError }: PeriUrbanCardProps) {
             hasAlert && data.alertStatus === "Detected"
               ? "text-periurban animate-pulse-subtle"
               : "text-muted-foreground"
-          }`}>
-            {formatValue(data.alertStatus)}
+          } ${isFocused ? "font-bold" : ""}`}>
+            {formatValueWithLoading(data.alertStatus, isLoading)}
           </span>
         </div>
 
         {/* Growth Index */}
         <div className="flex items-center justify-between group">
           <span className="data-label group-hover:text-foreground">Growth Index</span>
-          <span className="data-value group-hover:text-periurban">
-            {formatIndex(data.growthIndex)}
+          <span className={`data-value group-hover:text-periurban ${isFocused ? "font-bold" : ""}`}>
+            {formatIndexWithLoading(data.growthIndex, isLoading)}
           </span>
         </div>
 
@@ -201,7 +219,7 @@ function PeriUrbanCard({ data, isLoading, isError }: PeriUrbanCardProps) {
 /**
  * Digital Exclusion Risk Card
  */
-function DigitalExclusionCard({ data, isLoading, isError }: DigitalExclusionCardProps) {
+function DigitalExclusionCard({ data, isLoading, isError, isEmphasized, isFocused }: DigitalExclusionCardProps) {
   if (isLoading) {
     return <CardSkeleton title="Digital Exclusion Risk" icon={Shield} />;
   }
@@ -221,7 +239,7 @@ function DigitalExclusionCard({ data, isLoading, isError }: DigitalExclusionCard
   };
 
   return (
-    <div className="insight-card animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+    <div className={getCardEmphasisClass(isEmphasized, isFocused)} style={{ animationDelay: "0.3s" }}>
       <div className="insight-card-header flex items-center gap-2">
         <Shield className="w-4 h-4 text-exclusion" />
         <span>Digital Exclusion Risk</span>
@@ -232,8 +250,8 @@ function DigitalExclusionCard({ data, isLoading, isError }: DigitalExclusionCard
         <div className="space-y-1 group">
           <div className="flex items-center justify-between">
             <span className="data-label group-hover:text-foreground">Aadhaar Coverage</span>
-            <span className="text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration">
-              {formatPercent(data.aadhaarCoverage)}
+            <span className={`text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration ${isFocused ? "font-bold" : ""}`}>
+              {formatPercentWithLoading(data.aadhaarCoverage, isLoading)}
             </span>
           </div>
           <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
@@ -248,8 +266,8 @@ function DigitalExclusionCard({ data, isLoading, isError }: DigitalExclusionCard
         <div className="space-y-1 group">
           <div className="flex items-center justify-between">
             <span className="data-label group-hover:text-foreground">Digital Usability</span>
-            <span className="text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-periurban">
-              {formatPercent(data.digitalUsability)}
+            <span className={`text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-periurban ${isFocused ? "font-bold" : ""}`}>
+              {formatPercentWithLoading(data.digitalUsability, isLoading)}
             </span>
           </div>
           <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
@@ -263,8 +281,8 @@ function DigitalExclusionCard({ data, isLoading, isError }: DigitalExclusionCard
         {/* Risk Level */}
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <span className="data-label">Risk Level</span>
-          <span className={`text-sm font-semibold px-2 py-0.5 rounded transition-transform duration-200 hover:scale-105 ${getRiskStyles(data.riskLevel)}`}>
-            {formatValue(data.riskLevel)}
+          <span className={`text-sm font-semibold px-2 py-0.5 rounded transition-transform duration-200 hover:scale-105 ${getRiskStyles(data.riskLevel)} ${isFocused ? "scale-105" : ""}`}>
+            {formatValueWithLoading(data.riskLevel, isLoading)}
           </span>
         </div>
       </div>
@@ -287,11 +305,55 @@ export function InsightsPanel({
   periUrbanError = false,
   digitalRiskError = false,
 }: InsightsPanelProps) {
+  // Get global filter state for layer emphasis and focused district
+  const { state } = useFilters();
+  const { layers, focusedDistrict } = state;
+
+  // Determine if each card should be emphasized based on active layers
+  // Only de-emphasize if other layers are active and this one is not
+  const anyLayerActive = layers.migration || layers.periUrban || layers.digitalRisk;
+  
+  const getMigrationEmphasis = () => {
+    if (!anyLayerActive) return undefined; // No emphasis when no layers active
+    return layers.migration;
+  };
+
+  const getPeriUrbanEmphasis = () => {
+    if (!anyLayerActive) return undefined;
+    return layers.periUrban;
+  };
+
+  const getDigitalRiskEmphasis = () => {
+    if (!anyLayerActive) return undefined;
+    return layers.digitalRisk;
+  };
+
+  // Determine if cards should be focused (when district is hovered on map)
+  const hasFocus = focusedDistrict !== null;
+
   return (
     <aside className="w-full h-full p-4 flex flex-col gap-4 overflow-y-auto bg-background">
-      <MigrationCard data={migrationData} isLoading={migrationLoading} isError={migrationError} />
-      <PeriUrbanCard data={periUrbanData} isLoading={periUrbanLoading} isError={periUrbanError} />
-      <DigitalExclusionCard data={digitalExclusionData} isLoading={digitalRiskLoading} isError={digitalRiskError} />
+      <MigrationCard 
+        data={migrationData} 
+        isLoading={migrationLoading} 
+        isError={migrationError}
+        isEmphasized={getMigrationEmphasis()}
+        isFocused={hasFocus && layers.migration}
+      />
+      <PeriUrbanCard 
+        data={periUrbanData} 
+        isLoading={periUrbanLoading} 
+        isError={periUrbanError}
+        isEmphasized={getPeriUrbanEmphasis()}
+        isFocused={hasFocus && layers.periUrban}
+      />
+      <DigitalExclusionCard 
+        data={digitalExclusionData} 
+        isLoading={digitalRiskLoading} 
+        isError={digitalRiskError}
+        isEmphasized={getDigitalRiskEmphasis()}
+        isFocused={hasFocus && layers.digitalRisk}
+      />
     </aside>
   );
 }

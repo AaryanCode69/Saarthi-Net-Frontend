@@ -34,6 +34,8 @@ export interface MapContainerProps {
   periUrbanGeoJSON?: GeoJSONFeatureCollection | null;
   /** GeoJSON data for digital exclusion overlay */
   digitalRiskGeoJSON?: GeoJSONFeatureCollection | null;
+  /** Callback when district is clicked (for selection) */
+  onDistrictClick?: (districtName: string) => void;
 }
 
 // ============================================================
@@ -118,13 +120,14 @@ export function MapContainer({
   migrationGeoJSON,
   periUrbanGeoJSON,
   digitalRiskGeoJSON,
+  onDistrictClick,
 }: MapContainerProps) {
   // Refs
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
   // Global filter state
-  const { state } = useFilters();
+  const { state, setFocusedDistrict, clearFocusedDistrict } = useFilters();
   const layers = layersOverride ?? state.layers;
 
   // Local state
@@ -132,12 +135,45 @@ export function MapContainer({
   const [hoveredFeature, setHoveredFeature] = useState<{
     name: string;
     value: string;
+    layerType: "migration" | "periUrban" | "digitalRisk";
   } | null>(null);
 
   // Count active layers for display
   const activeLayerCount = Object.values(layers).filter(Boolean).length;
 
   // ============================================================
+  // TOOLTIP METRIC BASED ON ACTIVE LAYER
+  // ============================================================
+
+  const getTooltipMetric = useCallback(
+    (
+      props: Record<string, unknown>,
+      layerType: "migration" | "periUrban" | "digitalRisk"
+    ): string => {
+      switch (layerType) {
+        case "migration": {
+          const value = props.netMigrationPercent ?? props.migrationIndex;
+          if (value === null || value === undefined) return "Migration: --";
+          const numValue = Number(value);
+          const sign = numValue >= 0 ? "+" : "";
+          return `Net Migration: ${sign}${numValue}%`;
+        }
+        case "periUrban": {
+          const value = props.growthIndex;
+          if (value === null || value === undefined) return "Growth Index: --";
+          return `Growth Index: ${Number(value).toFixed(2)}`;
+        }
+        case "digitalRisk": {
+          const value = props.riskLevel ?? props.riskScore;
+          if (value === null || value === undefined) return "Risk Level: --";
+          return `Risk Level: ${value}`;
+        }
+        default:
+          return "--";
+      }
+    },
+    []
+  );
   // MAP INITIALIZATION (ONCE)
   // ============================================================
 
@@ -223,18 +259,33 @@ export function MapContainer({
       map.getCanvas().style.cursor = "pointer";
       if (e.features && e.features[0]) {
         const props = e.features[0].properties || {};
+        const districtName = String(props.name || props.district || "Unknown");
         setHoveredFeature({
-          name: String(props.name || props.district || "Unknown"),
-          value: `Migration: ${props.migrationIndex ?? "--"}`,
+          name: districtName,
+          value: getTooltipMetric(props, "migration"),
+          layerType: "migration",
         });
+        setFocusedDistrict(districtName);
       }
     });
 
     map.on("mouseleave", layerId, () => {
       map.getCanvas().style.cursor = "";
       setHoveredFeature(null);
+      clearFocusedDistrict();
     });
-  }, [mapLoaded, migrationGeoJSON, layers.migration]);
+
+    // Click handler for district selection
+    map.on("click", layerId, (e) => {
+      if (e.features && e.features[0]) {
+        const props = e.features[0].properties || {};
+        const districtName = String(props.name || props.district || "");
+        if (districtName && onDistrictClick) {
+          onDistrictClick(districtName);
+        }
+      }
+    });
+  }, [mapLoaded, migrationGeoJSON, layers.migration, getTooltipMetric, setFocusedDistrict, clearFocusedDistrict, onDistrictClick]);
 
   // ============================================================
   // LAYER: PERI-URBAN ALERT
@@ -294,18 +345,33 @@ export function MapContainer({
       map.getCanvas().style.cursor = "pointer";
       if (e.features && e.features[0]) {
         const props = e.features[0].properties || {};
+        const zoneName = String(props.name || props.zone || "Zone");
         setHoveredFeature({
-          name: String(props.name || props.zone || "Zone"),
-          value: `Growth: ${props.growthIndex ?? "--"}`,
+          name: zoneName,
+          value: getTooltipMetric(props, "periUrban"),
+          layerType: "periUrban",
         });
+        setFocusedDistrict(zoneName);
       }
     });
 
     map.on("mouseleave", layerId, () => {
       map.getCanvas().style.cursor = "";
       setHoveredFeature(null);
+      clearFocusedDistrict();
     });
-  }, [mapLoaded, periUrbanGeoJSON, layers.periUrban]);
+
+    // Click handler for district selection
+    map.on("click", layerId, (e) => {
+      if (e.features && e.features[0]) {
+        const props = e.features[0].properties || {};
+        const zoneName = String(props.name || props.zone || "");
+        if (zoneName && onDistrictClick) {
+          onDistrictClick(zoneName);
+        }
+      }
+    });
+  }, [mapLoaded, periUrbanGeoJSON, layers.periUrban, getTooltipMetric, setFocusedDistrict, clearFocusedDistrict, onDistrictClick]);
 
   // ============================================================
   // LAYER: DIGITAL EXCLUSION OVERLAY
@@ -356,18 +422,33 @@ export function MapContainer({
       map.getCanvas().style.cursor = "pointer";
       if (e.features && e.features[0]) {
         const props = e.features[0].properties || {};
+        const districtName = String(props.name || props.district || "Unknown");
         setHoveredFeature({
-          name: String(props.name || props.district || "Unknown"),
-          value: `Risk: ${props.riskLevel ?? "--"}`,
+          name: districtName,
+          value: getTooltipMetric(props, "digitalRisk"),
+          layerType: "digitalRisk",
         });
+        setFocusedDistrict(districtName);
       }
     });
 
     map.on("mouseleave", layerId, () => {
       map.getCanvas().style.cursor = "";
       setHoveredFeature(null);
+      clearFocusedDistrict();
     });
-  }, [mapLoaded, digitalRiskGeoJSON, layers.digitalRisk]);
+
+    // Click handler for district selection
+    map.on("click", layerId, (e) => {
+      if (e.features && e.features[0]) {
+        const props = e.features[0].properties || {};
+        const districtName = String(props.name || props.district || "");
+        if (districtName && onDistrictClick) {
+          onDistrictClick(districtName);
+        }
+      }
+    });
+  }, [mapLoaded, digitalRiskGeoJSON, layers.digitalRisk, getTooltipMetric, setFocusedDistrict, clearFocusedDistrict, onDistrictClick]);
 
   // ============================================================
   // LAYER VISIBILITY CONTROL

@@ -26,6 +26,8 @@ export interface FilterState {
   district: string;
   period: string;
   layers: LayerState;
+  /** District currently focused/hovered on map (UI state only, does not trigger API calls) */
+  focusedDistrict: string | null;
 }
 
 // ============================================================
@@ -40,6 +42,7 @@ const DEFAULT_FILTER_STATE: FilterState = {
     periUrban: true,
     digitalRisk: false,
   },
+  focusedDistrict: null,
 };
 
 // ============================================================
@@ -51,6 +54,7 @@ type FilterAction =
   | { type: "SET_PERIOD"; payload: string }
   | { type: "TOGGLE_LAYER"; payload: keyof LayerState }
   | { type: "SET_LAYER"; payload: { layer: keyof LayerState; value: boolean } }
+  | { type: "SET_FOCUSED_DISTRICT"; payload: string | null }
   | { type: "RESET_FILTERS" };
 
 // ============================================================
@@ -83,6 +87,9 @@ function filterReducer(state: FilterState, action: FilterAction): FilterState {
         },
       };
 
+    case "SET_FOCUSED_DISTRICT":
+      return { ...state, focusedDistrict: action.payload };
+
     case "RESET_FILTERS":
       return DEFAULT_FILTER_STATE;
 
@@ -104,6 +111,8 @@ interface FilterContextValue {
   setPeriod: (period: string) => void;
   toggleLayer: (layer: keyof LayerState) => void;
   setLayer: (layer: keyof LayerState, value: boolean) => void;
+  setFocusedDistrict: (district: string | null) => void;
+  clearFocusedDistrict: () => void;
   resetFilters: () => void;
 }
 
@@ -138,6 +147,10 @@ export function FilterProvider({ children, initialState }: FilterProviderProps) 
       dispatch({ type: "TOGGLE_LAYER", payload: layer }),
     setLayer: (layer: keyof LayerState, value: boolean) => 
       dispatch({ type: "SET_LAYER", payload: { layer, value } }),
+    setFocusedDistrict: (district: string | null) =>
+      dispatch({ type: "SET_FOCUSED_DISTRICT", payload: district }),
+    clearFocusedDistrict: () =>
+      dispatch({ type: "SET_FOCUSED_DISTRICT", payload: null }),
     resetFilters: () => 
       dispatch({ type: "RESET_FILTERS" }),
   };
@@ -201,4 +214,16 @@ export function useLayers(): [LayerState, (layer: keyof LayerState) => void] {
 export function useFilterParams(): { district: string; period: string } {
   const { state } = useFilters();
   return { district: state.district, period: state.period };
+}
+
+/**
+ * Get focused district (for map-insight synchronization)
+ */
+export function useFocusedDistrict(): [
+  string | null,
+  (district: string | null) => void,
+  () => void
+] {
+  const { state, setFocusedDistrict, clearFocusedDistrict } = useFilters();
+  return [state.focusedDistrict, setFocusedDistrict, clearFocusedDistrict];
 }
