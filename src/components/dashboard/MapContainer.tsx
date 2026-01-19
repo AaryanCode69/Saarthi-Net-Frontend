@@ -1,17 +1,17 @@
 import { ZoomIn, ZoomOut, Locate, Layers } from "lucide-react";
+import { useFilters, LayerState } from "@/store/filters";
 
 // ============================================================
 // TYPE DEFINITIONS
 // ============================================================
 
-export interface MapLayers {
-  migration: boolean;
-  periUrban: boolean;
-  digitalExclusion: boolean;
-}
-
 export interface MapContainerProps {
-  layers: MapLayers;
+  /** Optional: Override layer state for testing. If not provided, uses global state. */
+  layersOverride?: LayerState;
+  /** Optional: District for future map centering */
+  district?: string;
+  /** Optional: Period for future data filtering */
+  period?: string;
   // TODO: Add these props when backend integration is ready
   // geoJsonData?: unknown;
   // selectedRegion?: string;
@@ -29,7 +29,13 @@ export interface MapContainerProps {
  * NOTE: This is a UI placeholder only. No map library or GIS logic is implemented.
  * TODO: Replace with actual map implementation when backend provides GeoJSON data
  */
-export function MapContainer({ layers }: MapContainerProps) {
+export function MapContainer({ layersOverride, district, period }: MapContainerProps) {
+  // Use global filter state
+  const { state } = useFilters();
+  
+  // Use override if provided, otherwise use global state
+  const layers = layersOverride ?? state.layers;
+  
   // Count active layers for display
   const activeLayerCount = Object.values(layers).filter(Boolean).length;
 
@@ -89,7 +95,7 @@ export function MapContainer({ layers }: MapContainerProps) {
           {layers.periUrban && (
             <span className="legend-dot-periurban animate-scale-in" title="Peri-Urban" />
           )}
-          {layers.digitalExclusion && (
+          {layers.digitalRisk && (
             <span className="legend-dot-exclusion animate-scale-in" title="Digital Exclusion" />
           )}
         </div>

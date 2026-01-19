@@ -151,3 +151,21 @@ export function useDashboardData({ district, period }: UseDashboardDataParams) {
     isError: migration.isError || periUrban.isError || digitalRisk.isError,
   };
 }
+
+// ============================================================
+// GLOBAL STATE INTEGRATED HOOK
+// ============================================================
+
+import { useFilterParams } from "@/store/filters";
+
+/**
+ * Dashboard data hook that automatically reads from global filter state.
+ * This is the preferred hook for components that need dashboard data.
+ * 
+ * Data flow:
+ * Global Filter State → API Fetch Layer → Insight Panels (render only)
+ */
+export function useDashboardDataFromGlobalState() {
+  const { district, period } = useFilterParams();
+  return useDashboardData({ district, period });
+}

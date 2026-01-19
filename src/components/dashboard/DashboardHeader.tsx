@@ -1,28 +1,21 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { districtOptions, timeRangeOptions, DistrictOption, TimeRangeOption } from "@/mock/dashboardData";
+import { useFilters } from "@/store/filters";
 
 interface DashboardHeaderProps {
-  selectedDistrict: string;
-  onDistrictChange: (value: string) => void;
-  selectedTimeRange: string;
-  onTimeRangeChange: (value: string) => void;
   /** Optional: Override district options from backend */
   districts?: DistrictOption[];
   /** Optional: Override time range options from backend */
   timeRanges?: TimeRangeOption[];
 }
 
-// TODO: Replace with backend API response for dynamic district list
-// TODO: Replace with backend API response for dynamic time range options
-
 export function DashboardHeader({
-  selectedDistrict,
-  onDistrictChange,
-  selectedTimeRange,
-  onTimeRangeChange,
   districts = districtOptions,
   timeRanges = timeRangeOptions,
 }: DashboardHeaderProps) {
+  // Use global filter state
+  const { state, setDistrict, setPeriod } = useFilters();
+
   return (
     <header className="dashboard-header sticky top-0 z-50 h-14 px-6 flex items-center justify-between shadow-sm">
       {/* Left: Branding */}
@@ -34,7 +27,7 @@ export function DashboardHeader({
       {/* Right: Controls */}
       <div className="flex items-center gap-3">
         {/* Time Range Selector */}
-        <Select value={selectedTimeRange} onValueChange={onTimeRangeChange}>
+        <Select value={state.period} onValueChange={setPeriod}>
           <SelectTrigger className="w-36 h-8 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm">
             <SelectValue placeholder="Time Range" />
           </SelectTrigger>
@@ -48,7 +41,7 @@ export function DashboardHeader({
         </Select>
 
         {/* District Selector */}
-        <Select value={selectedDistrict} onValueChange={onDistrictChange}>
+        <Select value={state.district} onValueChange={setDistrict}>
           <SelectTrigger className="w-40 h-8 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm">
             <SelectValue placeholder="Select District" />
           </SelectTrigger>
