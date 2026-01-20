@@ -103,14 +103,15 @@ function getCardEmphasisClass(isEmphasized?: boolean, isFocused?: boolean): stri
 
 /**
  * Migration Overview Card
+ * Story flow: What → Where → Why it matters
  */
 function MigrationCard({ data, isLoading, isError, isEmphasized, isFocused }: MigrationCardProps) {
   if (isLoading) {
-    return <CardSkeleton title="Migration Overview" icon={Users} />;
+    return <CardSkeleton title="Migration Pressure" icon={Users} />;
   }
 
   if (isError) {
-    return <CardError title="Migration Overview" icon={Users} />;
+    return <CardError title="Migration Pressure" icon={Users} />;
   }
 
   const hasTrend = data.trend !== null;
@@ -120,13 +121,16 @@ function MigrationCard({ data, isLoading, isError, isEmphasized, isFocused }: Mi
     <div className={getCardEmphasisClass(isEmphasized, isFocused)} style={{ animationDelay: "0.1s" }}>
       <div className="insight-card-header flex items-center gap-2">
         <Users className="w-4 h-4 text-migration transition-transform duration-200 group-hover:scale-110" />
-        <span>Migration Overview</span>
+        <div className="flex flex-col">
+          <span>Migration Pressure</span>
+          <span className="text-[10px] font-normal text-muted-foreground">Population movement intensity</span>
+        </div>
       </div>
 
       <div className="space-y-3">
-        {/* Net Migration */}
+        {/* WHAT: Net Movement */}
         <div className="flex items-center justify-between group">
-          <span className="data-label group-hover:text-foreground">Net Migration</span>
+          <span className="data-label group-hover:text-foreground">Net Movement</span>
           <div className="flex items-center gap-1">
             <span className={`data-value group-hover:text-migration ${isFocused ? "font-bold" : ""}`}>
               {formatSignedPercentWithLoading(data.netMigrationPercent, isLoading)}
@@ -141,9 +145,9 @@ function MigrationCard({ data, isLoading, isError, isEmphasized, isFocused }: Mi
           </div>
         </div>
 
-        {/* Top Source District */}
+        {/* WHERE: Top Source District */}
         <div className="flex items-center justify-between group">
-          <span className="data-label group-hover:text-foreground">Top Source District</span>
+          <span className="data-label group-hover:text-foreground">Primary Source</span>
           <span className={`text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration ${isFocused ? "font-bold" : ""}`}>
             {formatValueWithLoading(data.topSourceDistrict, isLoading)}
           </span>
@@ -151,10 +155,17 @@ function MigrationCard({ data, isLoading, isError, isEmphasized, isFocused }: Mi
 
         {/* Total Movement */}
         <div className="flex items-center justify-between group">
-          <span className="data-label group-hover:text-foreground">Total Movement</span>
+          <span className="data-label group-hover:text-foreground">Total Volume</span>
           <span className={`text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration ${isFocused ? "font-bold" : ""}`}>
             {formatValueWithLoading(data.totalMovement, isLoading)}
           </span>
+        </div>
+
+        {/* WHY IT MATTERS: Policy relevance hint */}
+        <div className="pt-2 border-t border-border">
+          <p className="text-[10px] text-muted-foreground leading-relaxed italic">
+            High migration pressure often precedes infrastructure strain.
+          </p>
         </div>
       </div>
     </div>
@@ -163,14 +174,15 @@ function MigrationCard({ data, isLoading, isError, isEmphasized, isFocused }: Mi
 
 /**
  * Peri-Urban Growth Alert Card
+ * Story flow: What → Where → Why it matters
  */
 function PeriUrbanCard({ data, isLoading, isError, isEmphasized, isFocused }: PeriUrbanCardProps) {
   if (isLoading) {
-    return <CardSkeleton title="Peri-Urban Growth Alert" icon={AlertTriangle} />;
+    return <CardSkeleton title="Peri-Urban Growth" icon={AlertTriangle} />;
   }
 
   if (isError) {
-    return <CardError title="Peri-Urban Growth Alert" icon={AlertTriangle} />;
+    return <CardError title="Peri-Urban Growth" icon={AlertTriangle} />;
   }
 
   const hasAlert = data.alertStatus !== null;
@@ -180,13 +192,16 @@ function PeriUrbanCard({ data, isLoading, isError, isEmphasized, isFocused }: Pe
     <div className={getCardEmphasisClass(isEmphasized, isFocused)} style={{ animationDelay: "0.2s" }}>
       <div className="insight-card-header flex items-center gap-2">
         <AlertTriangle className="w-4 h-4 text-periurban" />
-        <span>Peri-Urban Growth Alert</span>
+        <div className="flex flex-col">
+          <span>Peri-Urban Growth</span>
+          <span className="text-[10px] font-normal text-muted-foreground">Villages showing urban patterns</span>
+        </div>
       </div>
 
       <div className="space-y-3">
-        {/* Alert Status */}
+        {/* WHAT: Alert Status */}
         <div className="flex items-center justify-between group">
-          <span className="data-label group-hover:text-foreground">Alert Status</span>
+          <span className="data-label group-hover:text-foreground">Pattern Status</span>
           <span className={`text-sm font-semibold transition-all duration-200 ${
             hasAlert && data.alertStatus === "Detected"
               ? "text-periurban animate-pulse-subtle"
@@ -196,7 +211,7 @@ function PeriUrbanCard({ data, isLoading, isError, isEmphasized, isFocused }: Pe
           </span>
         </div>
 
-        {/* Growth Index */}
+        {/* WHERE: Growth Index */}
         <div className="flex items-center justify-between group">
           <span className="data-label group-hover:text-foreground">Growth Index</span>
           <span className={`data-value group-hover:text-periurban ${isFocused ? "font-bold" : ""}`}>
@@ -204,11 +219,17 @@ function PeriUrbanCard({ data, isLoading, isError, isEmphasized, isFocused }: Pe
           </span>
         </div>
 
-        {/* Explanation */}
-        {hasExplanation && (
+        {/* Explanation with policy relevance */}
+        {hasExplanation ? (
           <div className="pt-2 border-t border-border">
             <p className="text-xs text-muted-foreground leading-relaxed transition-colors duration-200 hover:text-foreground">
               {data.explanation}
+            </p>
+          </div>
+        ) : (
+          <div className="pt-2 border-t border-border">
+            <p className="text-[10px] text-muted-foreground leading-relaxed italic">
+              Peri-urban zones often require updated land-use planning.
             </p>
           </div>
         )}
@@ -218,15 +239,16 @@ function PeriUrbanCard({ data, isLoading, isError, isEmphasized, isFocused }: Pe
 }
 
 /**
- * Digital Exclusion Risk Card
+ * Digital Access Risk Card
+ * Story flow: What → Where → Why it matters
  */
 function DigitalExclusionCard({ data, isLoading, isError, isEmphasized, isFocused }: DigitalExclusionCardProps) {
   if (isLoading) {
-    return <CardSkeleton title="Digital Exclusion Risk" icon={Shield} />;
+    return <CardSkeleton title="Digital Access Risk" icon={Shield} />;
   }
 
   if (isError) {
-    return <CardError title="Digital Exclusion Risk" icon={Shield} />;
+    return <CardError title="Digital Access Risk" icon={Shield} />;
   }
 
   const hasAadhaar = data.aadhaarCoverage !== null;
@@ -243,14 +265,17 @@ function DigitalExclusionCard({ data, isLoading, isError, isEmphasized, isFocuse
     <div className={getCardEmphasisClass(isEmphasized, isFocused)} style={{ animationDelay: "0.3s" }}>
       <div className="insight-card-header flex items-center gap-2">
         <Shield className="w-4 h-4 text-exclusion" />
-        <span>Digital Exclusion Risk</span>
+        <div className="flex flex-col">
+          <span>Digital Access Risk</span>
+          <span className="text-[10px] font-normal text-muted-foreground">Service delivery gap indicators</span>
+        </div>
       </div>
 
       <div className="space-y-3">
-        {/* Aadhaar Coverage */}
+        {/* WHAT: Identity Coverage */}
         <div className="space-y-1 group">
           <div className="flex items-center justify-between">
-            <span className="data-label group-hover:text-foreground">Aadhaar Coverage</span>
+            <span className="data-label group-hover:text-foreground">Identity Coverage</span>
             <span className={`text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-migration ${isFocused ? "font-bold" : ""}`}>
               {formatPercentWithLoading(data.aadhaarCoverage, isLoading)}
             </span>
@@ -263,10 +288,10 @@ function DigitalExclusionCard({ data, isLoading, isError, isEmphasized, isFocuse
           </div>
         </div>
 
-        {/* Digital Usability */}
+        {/* WHERE: Digital Usability */}
         <div className="space-y-1 group">
           <div className="flex items-center justify-between">
-            <span className="data-label group-hover:text-foreground">Digital Usability</span>
+            <span className="data-label group-hover:text-foreground">Service Usability</span>
             <span className={`text-sm font-medium text-foreground transition-colors duration-200 group-hover:text-periurban ${isFocused ? "font-bold" : ""}`}>
               {formatPercentWithLoading(data.digitalUsability, isLoading)}
             </span>
@@ -279,12 +304,19 @@ function DigitalExclusionCard({ data, isLoading, isError, isEmphasized, isFocuse
           </div>
         </div>
 
-        {/* Risk Level */}
+        {/* WHY IT MATTERS: Overall Risk */}
         <div className="flex items-center justify-between pt-2 border-t border-border">
-          <span className="data-label">Risk Level</span>
+          <span className="data-label">Overall Risk</span>
           <span className={`text-sm font-semibold px-2 py-0.5 rounded transition-transform duration-200 hover:scale-105 ${getRiskStyles(data.riskLevel)} ${isFocused ? "scale-105" : ""}`}>
             {formatValueWithLoading(data.riskLevel, isLoading)}
           </span>
+        </div>
+
+        {/* Policy relevance hint */}
+        <div className="pt-1">
+          <p className="text-[10px] text-muted-foreground leading-relaxed italic">
+            Digital access gaps indicate service delivery challenges.
+          </p>
         </div>
       </div>
     </div>
@@ -332,8 +364,24 @@ export function InsightsPanel({
   // Determine if cards should be focused (when district is hovered on map)
   const hasFocus = focusedDistrict !== null;
 
+  // Show walkthrough helper when migration layer is the only active layer (default state)
+  const showWalkthroughHelper = layers.migration && !layers.periUrban && !layers.digitalRisk;
+
   return (
     <aside className="w-full h-full p-4 flex flex-col gap-4 overflow-y-auto bg-background">
+      {/* Section Header */}
+      <div className="border-b border-border pb-2">
+        <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">District Insights</h2>
+        <p className="text-[10px] text-muted-foreground mt-0.5">Key patterns for the selected region</p>
+      </div>
+
+      {/* Walkthrough Helper - Only shown in default state */}
+      {showWalkthroughHelper && (
+        <div className="text-[11px] text-muted-foreground bg-primary/5 px-3 py-2 rounded-md border border-primary/10">
+          <span className="font-medium text-primary/80">Start here:</span> Observe migration pressure in the selected district, then explore other layers.
+        </div>
+      )}
+
       <MigrationCard 
         data={migrationData} 
         isLoading={migrationLoading} 

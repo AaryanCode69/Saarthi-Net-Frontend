@@ -21,7 +21,7 @@ export function DashboardHeader({
       {/* Left: Branding */}
       <div className="flex flex-col">
         <h1 className="text-lg font-semibold tracking-tight">Saarthi Net</h1>
-        <p className="text-xs opacity-80">Data Intelligence for Migration & Digital Inclusion</p>
+        <p className="text-xs opacity-80">Policy Intelligence: Migration Patterns & Digital Access</p>
       </div>
 
       {/* Right: Controls */}

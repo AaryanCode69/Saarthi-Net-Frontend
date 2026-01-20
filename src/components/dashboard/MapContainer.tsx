@@ -153,10 +153,10 @@ export function MapContainer({
       switch (layerType) {
         case "migration": {
           const value = props.netMigrationPercent ?? props.migrationIndex;
-          if (value === null || value === undefined) return "Migration: --";
+          if (value === null || value === undefined) return "Net Movement: --";
           const numValue = Number(value);
           const sign = numValue >= 0 ? "+" : "";
-          return `Net Migration: ${sign}${numValue}%`;
+          return `Net Movement: ${sign}${numValue}%`;
         }
         case "periUrban": {
           const value = props.growthIndex;
@@ -165,8 +165,8 @@ export function MapContainer({
         }
         case "digitalRisk": {
           const value = props.riskLevel ?? props.riskScore;
-          if (value === null || value === undefined) return "Risk Level: --";
-          return `Risk Level: ${value}`;
+          if (value === null || value === undefined) return "Access Risk: --";
+          return `Access Risk: ${value}`;
         }
         default:
           return "--";
@@ -638,19 +638,19 @@ export function MapContainer({
           {layers.migration && (
             <span
               className="legend-dot-migration animate-scale-in"
-              title="Migration"
+              title="Migration Pressure"
             />
           )}
           {layers.periUrban && (
             <span
               className="legend-dot-periurban animate-scale-in"
-              title="Peri-Urban"
+              title="Peri-Urban Growth"
             />
           )}
           {layers.digitalRisk && (
             <span
               className="legend-dot-exclusion animate-scale-in"
-              title="Digital Exclusion"
+              title="Digital Access Risk"
             />
           )}
         </div>

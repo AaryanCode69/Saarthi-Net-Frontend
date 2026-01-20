@@ -37,6 +37,7 @@ export function FiltersPanel({
       {/* Section Title */}
       <div className="border-b border-border pb-2">
         <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Filters</h2>
+        <p className="text-[10px] text-muted-foreground mt-0.5">Adjust region and time period</p>
       </div>
 
       {/* District Filter */}
@@ -75,15 +76,21 @@ export function FiltersPanel({
 
       {/* Layer Toggles */}
       <div className="space-y-1 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-        <Label className="data-label">Map Layers</Label>
+        <div className="flex flex-col gap-0.5 mb-2">
+          <Label className="data-label">Map Layers</Label>
+          <span className="text-[10px] text-muted-foreground">Toggle data overlays on the map</span>
+        </div>
         
-        {/* Migration Heatmap Toggle */}
-        <div className="layer-toggle-row">
-          <div className="flex items-center gap-2">
-            <span className={`legend-dot-migration transition-transform duration-200 ${state.layers.migration ? 'scale-110' : 'scale-100 opacity-50'}`} />
-            <span className={`text-sm transition-colors duration-200 ${state.layers.migration ? 'text-foreground' : 'text-muted-foreground'}`}>
-              Migration Heatmap
-            </span>
+        {/* Migration Pressure Toggle */}
+        <div className={`layer-toggle-row ${state.layers.migration && isMigrationOnlyActive ? 'bg-primary/5 ring-1 ring-primary/20 rounded-md' : ''}`}>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span className={`legend-dot-migration transition-transform duration-200 ${state.layers.migration ? 'scale-110' : 'scale-100 opacity-50'}`} />
+              <span className={`text-sm transition-colors duration-200 ${state.layers.migration ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                Migration Pressure
+              </span>
+            </div>
+            <span className="text-[10px] text-muted-foreground ml-5">Inflow vs Outflow patterns</span>
           </div>
           <Switch
             checked={state.layers.migration}
@@ -93,13 +100,16 @@ export function FiltersPanel({
           />
         </div>
 
-        {/* Peri-Urban Alert Zones Toggle */}
+        {/* Peri-Urban Growth Toggle */}
         <div className="layer-toggle-row">
-          <div className="flex items-center gap-2">
-            <span className={`legend-dot-periurban transition-transform duration-200 ${state.layers.periUrban ? 'scale-110' : 'scale-100 opacity-50'}`} />
-            <span className={`text-sm transition-colors duration-200 ${state.layers.periUrban ? 'text-foreground' : 'text-muted-foreground'}`}>
-              Peri-Urban Alert Zones
-            </span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span className={`legend-dot-periurban transition-transform duration-200 ${state.layers.periUrban ? 'scale-110' : 'scale-100 opacity-50'}`} />
+              <span className={`text-sm transition-colors duration-200 ${state.layers.periUrban ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                Peri-Urban Growth
+              </span>
+            </div>
+            <span className="text-[10px] text-muted-foreground ml-5">Villages showing urban patterns</span>
           </div>
           <Switch
             checked={state.layers.periUrban}
@@ -109,13 +119,16 @@ export function FiltersPanel({
           />
         </div>
 
-        {/* Digital Exclusion Risk Toggle */}
+        {/* Digital Access Risk Toggle */}
         <div className="layer-toggle-row">
-          <div className="flex items-center gap-2">
-            <span className={`legend-dot-exclusion transition-transform duration-200 ${state.layers.digitalRisk ? 'scale-110' : 'scale-100 opacity-50'}`} />
-            <span className={`text-sm transition-colors duration-200 ${state.layers.digitalRisk ? 'text-foreground' : 'text-muted-foreground'}`}>
-              Digital Exclusion Risk
-            </span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span className={`legend-dot-exclusion transition-transform duration-200 ${state.layers.digitalRisk ? 'scale-110' : 'scale-100 opacity-50'}`} />
+              <span className={`text-sm transition-colors duration-200 ${state.layers.digitalRisk ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                Digital Access Risk
+              </span>
+            </div>
+            <span className="text-[10px] text-muted-foreground ml-5">Service delivery gap indicators</span>
           </div>
           <Switch
             checked={state.layers.digitalRisk}
